@@ -1,14 +1,11 @@
 ---
 title: "Midterm Project EDA"
-author: "Jin Yan, Tao Guo, Jiaqi Sun"
+author: "Jin Yan, Tao Guo, Jiaqi Sun, Shengbo Wang"
 date: "2022-11-09"
 output:
   pdf_document: default
   html_document: default
 ---
-
-
-
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, fig.width = 10, fig.height = 5)
@@ -111,12 +108,15 @@ dichloropropene <- strawb_chem[df_chloropicrin,]
 
 ```
 
+
+
+
+
 ## Total Posion chemicals by State
 
-```{r echo = FALSE}
+```{r }
 
 Posion_chem <- strawb_chem[c(df_Bifenthrin,df_methyl_bromide,df_chloropicrin ),]
-
 
 ```
 
@@ -124,15 +124,41 @@ Posion_chem <- strawb_chem[c(df_Bifenthrin,df_methyl_bromide,df_chloropicrin ),]
 LB <- ifelse(Posion_chem$` MEASURED IN LB`[1:16]=="(D)",0, Posion_chem$` MEASURED IN LB`[1:16])
 LB <- as.numeric(LB)
 Posion_chem$` MEASURED IN LB` <- LB
-Posion_chem %>% group_by(State) %>% summarise(LB_sum = sum(` MEASURED IN LB`))%>% kable(caption = "Total Posion Chemicals Using by State", digits = 3, format.args = list(big.mark = ",")) %>% kable_minimal(full_width = F)
+Posion_chem %>% group_by(State) %>% summarise(LB_sum = sum(` MEASURED IN LB`))%>% kable(caption = 
+      "Total Posion Chemicals Using by State", digits = 3, 
+      format.args = list(big.mark = ",")) %>% 
+  kable_minimal(full_width = F)
+
+
+
 ```
 
-### total chemical using by State
+
+
+
+
+
+
+
+
+
+
+## total chemical using by State
 
 ```{r}
-LB_total <- ifelse(strawb_chem$` MEASURED IN LB`[1:728]=="(D)"|strawb_chem$` MEASURED IN LB`[1:728]=="(NA)"|strawb_chem$` MEASURED IN LB`[1:728]=="(Z)",0,strawb_chem$` MEASURED IN LB`[1:728])
+LB_total <- ifelse(strawb_chem$` MEASURED IN LB`[1:728]=="(D)"|
+                     strawb_chem$` MEASURED IN LB`[1:728]=="(NA)"|
+                     strawb_chem$` MEASURED IN LB`[1:728]=="(Z)",0,
+                   strawb_chem$` MEASURED IN LB`[1:728])
 strawb_chem$` MEASURED IN LB` <- as.numeric(LB_total)
-strawb_chem%>% group_by(State) %>% summarise(LB_sum = sum(` MEASURED IN LB`))%>%kable(caption = "Total Chemicals Using by State", digits = 3, format.args = list(big.mark = ",")) %>% kable_minimal(full_width = F)
+
+strawb_chem%>% group_by(State) %>% summarise(LB_sum = sum(` MEASURED IN LB`))%>%
+  kable(caption = "Total Chemicals Using by State", 
+digits = 3, format.args = list(big.mark = ",")) %>% 
+kable_minimal(full_width = F)
+
+
+
 ```
 
 ## Percentage poison chemicals by State
@@ -150,12 +176,18 @@ chem_state <- chem_total%>% group_by(State) %>% summarise(LB_sum = sum(` MEASURE
 
 Posion_state$Total_LB <- chem_state$LB_sum
 
-percent_posion_state <- Posion_state %>% mutate(Percent_posion = LB_sum/Total_LB)
-percent_posion_state %>%kable(caption = "Percentage Poison Chemicals by State", digits = 3, format.args = list(big.mark = ",")) %>% kable_minimal(full_width = F)
+percent_posion_state <- Posion_state %>% 
+  mutate(Percent_posion = LB_sum/Total_LB)
+percent_posion_state %>%
+  kable(caption = "Percentage Poison Chemicals by State", 
+      digits = 3, format.args = list(big.mark = ",")) %>% 
+  kable_minimal(full_width = F)
 ```
 
 ```{r}
-percent_posion_state1 <- percent_posion_state[-4] %>% pivot_longer(c(LB_sum,Total_LB), names_to = "type",values_to = "value")
+percent_posion_state1 <- percent_posion_state[-4] %>% 
+  pivot_longer(c(LB_sum,Total_LB), 
+  names_to = "type",values_to = "value")
 ```
 
 ```{r}
@@ -165,29 +197,24 @@ ggplot(percent_posion_state1, aes(fill=type, y=log(value+1), x=State)) +
   scale_fill_discrete(labels = c("Poison Chemicals","Total Chemicals"))
 ```
 
-From this plot, The California high weight of poison chemicals than
-other State, the Oregon almost did not use poison chemicals. Although
-the Florida use the poison chemicals, they only use about 0.45%. From
-percent_posion_state table, over 30 percent chemicals using in CA is
-poison chemicals which is risky for human health.
+From this plot, The California high weight of poison chemicals than other State, the Oregon almost did not use poison chemicals. Although the Florida use the poison chemicals, they only use about 0.45%. From percent_posion_state table, over 30 percent chemicals using in CA is poison chemicals which is risky for human health.
 
-```{r}
-Posion_state_per_years <- Posion_chem %>% group_by(State,Year) %>% summarise(LB_sum = sum(` MEASURED IN LB`))
-Posion_state_per_years$`State per Year` <- paste(Posion_state_per_years$State, Posion_state_per_years$Year, sep = " ")
+```{r, warning=FALSE, message=FALSE}
+Posion_state_per_years <- Posion_chem %>% 
+  group_by(State,Year) %>% 
+  summarise(LB_sum = sum(` MEASURED IN LB`))
+Posion_state_per_years$`State per Year` <- 
+  paste(Posion_state_per_years$State, 
+        Posion_state_per_years$Year, sep = " ")
 
-ggplot(Posion_state_per_years, aes(x = `State per Year`, y = log(LB_sum)))+geom_bar(stat = "identity")+coord_flip()+ylab("log Pound of Each State Producation per year with Posion Chemicals ")
+ggplot(Posion_state_per_years, aes(x = `State per Year`, y = log(LB_sum)))+
+geom_bar(stat = "identity")+
+coord_flip()+ylab("log Pound of Each State Producation per year with Posion Chemicals")
 ```
 
-In this Plot, from 2016 to 2021, the poison chemicals application in
-California still maintain at very high levels. Compared to California,
-the poison chemicals application in Florida is much lower than
-California and in 2021 the Florida did not use poison chemicals at all.
-Meanwhile, I find the quantity of California strawberry is extremely
-higher than others States, based on two plots, so in next I would like
-find the proportion of strawberry quantity by State. \## Strawberry
-Proportion by State
+In this Plot, from 2016 to 2021, the poison chemicals application in California still maintain at very high levels. Compared to California, the poison chemicals application in Florida is much lower than California and in 2021 the Florida did not use poison chemicals at all. Meanwhile, I find the quantity of California strawberry is extremely higher than others States, based on two plots, so in next I would like find the proportion of strawberry quantity by State. \## Strawberry Proportion by State
 
-```{r, warning = TRUE}
+```{r, warning = FALSE, message=FALSE}
 strawb5 <- strawb4 %>% pivot_wider(names_from = `units`, values_from = `Value`)
 CWT <- ifelse(strawb5$` MEASURED IN CWT`=="(D)",0,strawb5$` MEASURED IN CWT`)
 CWT_LB <- as.numeric(CWT)*100
@@ -203,33 +230,34 @@ strawb5$`Domain Category`, ignore.case = T)
 fertlizer_rows <- grep("FERTILIZER",strawb5$`Domain Category`, ignore.case = T)
 organic_rows1 <- grep("ORGANIC",strawb5$type, ignore.case = T)
 strawb5 <- strawb5[c(total_rows1,fertlizer_rows,organic_rows1),]
-strawb5 %>% group_by(State) %>% summarise(LB = sum(` MEASURED IN LB`, na.rm = TRUE))%>%kable(caption = "Total Strawberry Production by State in Pound", digits = 3, format.args = list(big.mark = ",")) %>% kable_minimal(full_width = F)
+strawb5 %>% group_by(State) %>% 
+  summarise(LB = sum(` MEASURED IN LB`, na.rm = TRUE))%>%
+  kable(caption = "Total Strawberry Production by State in Pound", 
+        digits = 3, format.args = list(big.mark = ",")) %>% 
+  kable_minimal(full_width = F)
 
 ```
 
 ```{r}
-total_state_LB <- strawb5 %>% group_by(State) %>% summarise(LB = sum(` MEASURED IN LB`, na.rm = TRUE))
+total_state_LB <- strawb5 %>% group_by(State) %>% 
+  summarise(LB = sum(` MEASURED IN LB`, na.rm = TRUE))
 ggplot(total_state_LB, aes(x="", y=LB, fill=State)) +
   geom_bar(stat="identity", width=1, color="white") +
-  coord_polar("y", start=0)+theme_void()+ggtitle("Total Strawberries Production in Pound by State")
+  coord_polar("y", start=0)+
+  theme_void()+
+  ggtitle("Total Strawberries Production in Pound by State")
 ```
 
-This Pi plot responds to my previous opinion, in this data sets, the
-California produce over 90% Strawberry. From my percentage poison
-chemicals by State, there are 20192300 LB strawberry may harm human
-health. Therefore, there are at least 6% strawberry produced in
-California, which are harmful.
+This Pi plot responds to my previous opinion, in this data sets, the California produce over 90% Strawberry. From my percentage poison chemicals by State, there are 20192300 LB strawberry may harm human health. Therefore, there are at least 6% strawberry produced in California, which are harmful.
 
 ```{r}
 ggplot(total_state_LB, aes(x="", y=log(LB), fill=State)) +
   geom_bar(stat="identity", width=1, color="white") +
-  coord_polar("y", start=0)+theme_void()+ggtitle("Total Strawberries Production in Pound by State")
+  coord_polar("y", start=0)+theme_void()+
+  ggtitle("Total Strawberries Production in Pound by State")
 ```
 
-This last figure, I log the value of production of strawberry in order
-to find the proportion of other State without California. This Pi chart
-show the Florida production is relatively higher than other states.
-Others production is closes with each others beside California.
+This last figure, I log the value of production of strawberry in order to find the proportion of other State without California. This Pi chart show the Florida production is relatively higher than other states. Others production is closes with each others beside California.
 
 ```{r}
 ggplot(total_state_LB, aes(x=State, y=log(LB))) + 
@@ -280,7 +308,6 @@ strawb %<>% separate(col=`Data Item`,
                     fill = "right")
 ```
 
-
 ```{r, echo=FALSE,results='hide',message=FALSE}
 #Tibble Organic
 type_organic <- grep("organic", 
@@ -307,7 +334,6 @@ strawb_non_organic <- strawb %>% filter(!row_number() %in% org_rows)
 strawb_non_organic[strawb_non_organic$Strawberries == "STRAWBERRIES - PRICE RECEIVED", ]$items = strawb_non_organic[strawb_non_organic$Strawberries == "STRAWBERRIES - PRICE RECEIVED", ]$type
 ```
 
-
 ```{r, echo=FALSE,results='hide',message=FALSE}
 #Tibble Chemical
 ## the chemical data in the column "type" 
@@ -319,7 +345,6 @@ chem_rows <- grep("BEARING - APPLICATIONS",
 
 strawb_chem <- strawb_non_organic %>% slice(chem_rows, preserve = FALSE)
 ```
-
 
 ```{r,echo = FALSE,results='hide',message=FALSE}
 #Tidying the Tibble Chemical
@@ -452,6 +477,7 @@ strawb_chem %>%
   rename("Average per Acre per Application" =  " LB / ACRE / APPLICATION") %>% 
   rename("Average per Acre per Year" =  " LB / ACRE / YEAR") -> strawb_chem
 ```
+
 ```{r, echo =FALSE,results='hide',message=FALSE}
 #Chemical Investigation
 ## investigate chemicals commonly used according to "Shopper’s Guide to Pesticides in Produce™" wihch are deadly possions
@@ -616,20 +642,14 @@ ACEQ <- strawb_chem %>% slice(aceq)
 
 ```
 
-
 ## Safe Chemicals
-chemicals commonly used, which are safe ones:
-"ACIBENZOLAR-S-METHYL" - 12 results,
-" ACETAMIPRID " - 16 results,
-" ACEQUINOCYL " - 10 results
 
-
+chemicals commonly used, which are safe ones: "ACIBENZOLAR-S-METHYL" - 12 results, " ACETAMIPRID " - 16 results, " ACEQUINOCYL " - 10 results
 
 ## Percentage of poison chemicals
 
-chemicals commonly used according to "Shopper’s Guide to Pesticides in Produce™"
-which are deadly possion: "Bifenthrin"-27 results, "chloropicrin"-18 results and
-"methyl bromide"-2 results
+chemicals commonly used according to "Shopper's Guide to Pesticides in Produce™" which are deadly possion: "Bifenthrin"-27 results, "chloropicrin"-18 results and "methyl bromide"-2 results
+
 ```{r,,message=FALSE}
 # load library
 library(ggplot2)
@@ -666,17 +686,15 @@ ggplot(hazardous_chems, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=category)
   theme(legend.position = "none")
 ```
 
-
 The donuts graph shows the percentage each poison takes in all, with Bifen the most, and chloropicrin second, Methyl bromide least.
-
-
 
 ## How Much of the Poisons are used Per Acre?
 
 ```{r, message=FALSE}
 library(ggplot2)
 
-pois_all <- rbind(bifen_pa,bifen_papa,bifen_papy, chloropicrin_pa, chloropicrin_papa, chloropicrin_papy)
+pois_all <- rbind(bifen_pa,bifen_papa,bifen_papy, 
+chloropicrin_pa, chloropicrin_papa, chloropicrin_papy)
 pois_all %>% 
   group_by(Year, State) %>% 
   filter(`per Acre` != 0) %>% 
@@ -685,8 +703,11 @@ pois_all %>%
 
 ```{r, message=FALSE,fig.align='left'}
 pois_all_new %>% 
-  kable(caption = "<b>Table Poison used Per Acre: raw form</b>", digits = 3, format.args = list(big.mark = ",")) %>%   kable_minimal(full_width = F) 
+  kable(caption = "<b>Table Poison used Per Acre: raw form</b>", 
+        digits = 3, format.args = list(big.mark = ",")) %>%   
+  kable_minimal(full_width = F) 
 ```
+
 <p style="page-break-before:always">
 
 ```{r, message=FALSE}
@@ -697,19 +718,16 @@ ggplot(pois_all_new, aes(x = Year, y = log(`Per_acre_ys`+1), colour = State)) +
   title ="How Much of the Poisons are used Per Acre?")
 ```
 
-
 we know from the graph below that California has been using very high level of poisson per acre with no plans to decrease them, while Florida hasn't been using much per acre and keep decrease the amount of poison.
 
 We would suggest California to decrease the amount of poison using per acre and suggest customers buy strawberries from States other than California.
 
-
-
-
-
 ## How Much of the Poisons are used Per Acre Per Application?
 
 ```{r, message=FALSE}
-pois_all <- rbind(bifen_pa,bifen_papa,bifen_papy, chloropicrin_pa, chloropicrin_papa, chloropicrin_papy)
+pois_all <- rbind(bifen_pa,bifen_papa,bifen_papy, 
+                  chloropicrin_pa, chloropicrin_papa, 
+                  chloropicrin_papy)
 pois_all %>% 
   group_by(Year, State) %>% 
   filter(`Average per Acre per Application` != 0) %>% 
@@ -718,13 +736,17 @@ pois_all %>%
 ```
 
 ```{r,, message=FALSE,fig.align='left'}
-pois_all_papa %>% 
-  kable(caption = "<b>Table Poison used Per Acre Per Application: raw form</b>", digits = 3, format.args = list(big.mark = ",")) %>%
-  kable_minimal(full_width = F)  
+pois_all_papa %>% kable(
+  caption = 
+"Table Poison used Per Acre Per Application: raw form", 
+digits = 3, 
+format.args = list(big.mark = ",")) %>%
+kable_minimal(full_width = F) 
+
+
+
+
 ```
-
-
-
 
 ```{r, message=FALSE}
 ggplot(pois_all_papa, aes(x = Year, y = `Per_acre_pa_ys`, colour = State)) +
@@ -734,14 +756,15 @@ ggplot(pois_all_papa, aes(x = Year, y = `Per_acre_pa_ys`, colour = State)) +
   title ="How Much of the Poisons are used Per Acre Per Application?")
 ```
 
-
 we know from the graph below that California has been using very high level of poison per acre per application but has to decrease them as the time going, while Florida's using of poisson is nearly 0 per acre per application.
 
 We would suggest California to decrease the amount of poison using per acre per application and suggest customers buy strawberries from States other than California.
 
 ## How Much of the Poisons are used Per Acre Per Year?
+
 ```{r}
-pois_all <- rbind(bifen_pa,bifen_papa,bifen_papy, chloropicrin_pa, chloropicrin_papa, chloropicrin_papy)
+pois_all <- rbind(bifen_pa,bifen_papa,bifen_papy,
+chloropicrin_pa, chloropicrin_papa, chloropicrin_papy)
 pois_all %>% 
   group_by(Year, State) %>% 
   filter(`Average per Acre per Year` != 0) %>% 
@@ -750,7 +773,9 @@ pois_all %>%
 
 ```{r}
 pois_all_papy %>% 
-  kable(caption = "<b>Table Poison used Per Acre Per Year: raw form</b>", digits = 3, format.args = list(big.mark = ",")) %>%   kable_minimal(full_width = F) 
+  kable(caption = "<b>Table Poison used Per Acre Per Year: raw form</b>", 
+        digits = 3, format.args = list(big.mark = ",")) %>%   
+  kable_minimal(full_width = F) 
 ```
 
 ```{r}
@@ -761,17 +786,14 @@ ggplot(pois_all_papy, aes(x = Year, y = `Per_acre_papy_ys`, colour = State)) +
   title ="How Much of the Poisons are used Per Acre Per Year?")
 ```
 
+we know from the graph below that California has been using very high level of poison per acre per year but has to decrease them as the time going, while Florida's using of poisson is nearly 0 per acre per year.
 
-we know from the graph below that California has been using very high level of poison per acre per year but
-has to decrease them as the time going, while Florida's using of poisson is nearly 0 per acre per year.
+We would suggest California to decrease the amount of poison using per acre per year and suggest customers buy strawberries from States other than California.
 
-We would suggest California to decrease the amount of poison using per acre per year and suggest customers
-buy strawberries from States other than California.
+## Improvement data sets
 
-
-## Improvement data sets 
-Firstly, too many columns contained NA should be removed, which are useless. Secondly, many different variables contained in same column, which should be separated. Thirdly, total sales value and others are mixed, which are confused to calculation. Fourthly, the sales units are not recorded in same measurement method, which are
-difficult to calculate.
+Firstly, too many columns contained NA should be removed, which are useless. Secondly, many different variables contained in same column, which should be separated. Thirdly, total sales value and others are mixed, which are confused to calculation. Fourthly, the sales units are not recorded in same measurement method, which are difficult to calculate.
+Furthermore, according to the non-organic strawberries might pose to the public health, add factors of the local’s health states in relative areas. That we can check whether there is an issue with the non-organic strawberries.
 
 ## CV problem
 
@@ -785,14 +807,4 @@ print(ci_upper)
 print(ci_lower)
 ```
 
-Due to the organic strawberries were collected by census, we can
-initiative to collect the data of CV and many of other details, but as
-for the non-organic strawberries, the method of collect is survey(the
-self-reported), the method lack the enough details for CV and other
-complete data, also, if ues we change the method collect of survey to
-census, there are much of tima and money we need to cost, it is not
-worthy,so there is no CV data for non-organic strawberries. As to the
-usage of CV, we through the critical value and SD, we can calculate the
-confidence interval for organic strawberries: Margin of error(parameter)
-= Critical value*standard deviation for population; population mean=
-231304956,CV=13.7%,SD=mean*CV
+Due to the organic strawberries were collected by census, we can initiative to collect the data of CV and many of other details, but as for the non-organic strawberries, the method of collect is survey(the self-reported), the method lack the enough details for CV and other complete data, also, if ues we change the method collect of survey to census, there are much of tima and money we need to cost, it is not worthy,so there is no CV data for non-organic strawberries. As to the usage of CV, we through the critical value and SD, we can calculate the confidence interval for organic strawberries: Margin of error(parameter) = Critical value*standard deviation for population; population mean= 231304956,CV=13.7%,SD=mean*CV
